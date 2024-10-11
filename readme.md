@@ -1,5 +1,8 @@
-# laravel scaffold command
 
+# laravel scaffold command
+```bash
+composer require luiz0067yahoo/laravel-scaffold-command-1:dev-main
+```
 ## create all necessary files for crud operation with one command
 - model
 - resource controller, api or just regular crud controller
@@ -15,19 +18,34 @@
     - resource collection class
 
 
-## installation
-```bash
-composer require tefoh/laravel-scaffold-command
-```
-next
 ```bash
 php artisan vendor:publish --tag=scaffold-stubs
 ```
 
 ### usage
 ```bash
-php artisan scaffold {your entity name}
+php artisan scaffold your_entity_name
 
-like php artisan scaffold Category --fields=name:string,slug:string,parent_id:foreignId
 ```
-enjoy :)
+or
+```bash
+php artisan scaffold your_entity_name --api
+
+```
+like 
+```bash
+php artisan scaffold Category --fields=name:string,slug:string,parent_id:foreignId
+
+```
+or
+```bash
+php artisan scaffold Category --fields=name:string,slug:string,parent_id:foreignId --api
+
+```
+
+php artisan delete all elements
+```bash
+
+php artisan scaffold  Category --remove
+
+```

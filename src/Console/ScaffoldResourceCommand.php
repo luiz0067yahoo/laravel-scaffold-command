@@ -22,6 +22,7 @@ class ScaffoldResourceCommand extends GeneratorCommand
                                         {--fields= : Generate columns with this option (e.x. name:string,email:string)}
                                         {--collection : Generate collection resource}
                                         {--resource= : Resource class name}
+                                        {--remove : drop resource}
                                         {--force : Create the class even if the resource already exists}';
 
     /**

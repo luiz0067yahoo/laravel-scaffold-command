@@ -19,6 +19,7 @@ class ScaffoldModelCommand extends GeneratorCommand
     protected $signature = 'scaffold:model {name : Name of entity}
                                         {--field=* : Generate columns with this option (e.x. name:string)}
                                         {--fields= : Generate columns with this option (e.x. name:string,email:string)}
+                                        {--remove : drop file model}
                                         {--force : Create the class even if the model already exists}';
 
     /**

@@ -4,6 +4,9 @@ namespace {{ namespace }};
 
 use {{ namespacedModel }};
 use {{ rootNamespace }}Http\Controllers\Controller;
+use {{ rootNamespace }}Http\Resources\{{ modelResourceCollection }};
+use {{ rootNamespace }}Http\Resources\{{ modelResource }};
+use Illuminate\Http\Response;
 use Illuminate\Http\Request;
 
 class {{ class }} extends Controller
@@ -30,7 +33,7 @@ class {{ class }} extends Controller
         return view('{{ modelVariable }}.create');
     }
 
-    /**
+     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
@@ -38,9 +41,17 @@ class {{ class }} extends Controller
      */
     public function store(Request $request)
     {
-        {{ model }}::create($request->all());
-
-        return back();
+        try{
+            $data= new {{ modelResource }}(
+                {{ model }}::create($request->all())
+            );
+            if ($data) {
+                return response()->json(['success' => true, 'message' => true, 'data' => $data], Response::HTTP_OK);
+            }
+            return response()->json(['error' => true, 'message' => false, 'data' => []], Response::HTTP_NOT_FOUND);
+        } catch (\Exception $e) {
+            return response()->json(['error' => true, 'message' => false, 'data' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
     }
 
     /**
@@ -60,35 +71,77 @@ class {{ class }} extends Controller
      * @param  \{{ namespacedModel }}  ${{ modelVariable }}
      * @return \Illuminate\Http\Response
      */
-    public function edit({{ model }} ${{ modelVariable }})
+    public function edit($id,{{ model }} ${{ modelVariable }})
     {
-        return view('{{ modelVariable }}.edit', compact('{{ modelVariable }}'));
+        $data={{ model }}::findOrfail($id);
+        return view('{{ modelVariable }}.edit', compact('{{ modelVariable }}','data'));
     }
 
-    /**
+   /**
      * Update the specified resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @param  \{{ namespacedModel }}  ${{ modelVariable }}
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, {{ model }} ${{ modelVariable }})
+    public function update(Request $request, $id)
     {
-        ${{ modelVariable }}->update($request->all());
+        try{
+            $columns={{ columns }};
+            $data={{ model }}::findOrfail($id);
+            foreach ($columns as $col){
+                $data[$col]=$request->input($col);
+            }
+            $result= new {{ modelResource }}(
+                $data->save()
+            );
 
-        return back();
+            if ($result) {
+                return response()->json(['success' => true, 'message' => true, 'data' => $data], Response::HTTP_OK);
+            }
+            return response()->json(['error' => true, 'message' => false, 'data' => []], Response::HTTP_NOT_FOUND);
+        } catch (\Exception $e) {
+            return response()->json(['error' => true, 'message' => false, 'data' => $e->getMessage()], Response::HTTP_BAD_REQUEST);
+        }
     }
 
     /**
      * Remove the specified resource from storage.
      *
-     * @param  \{{ namespacedModel }}  ${{ modelVariable }}
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy({{ model }} ${{ modelVariable }})
+    public function destroy($id)
     {
-        ${{ modelVariable }}->delete();
 
-        return back();
+        try{
+            $data={{ model }}::findOrfail($id);
+            if ($data) {
+                // Se o recurso foi encontrado, exclui-o
+                $data->delete();
+
+                return response()->json([
+                    'success' => true,
+                    'message' => '{{ model }} deleted successfully',
+                    'data' => []
+                ], Response::HTTP_OK);
+            }
+
+            // Retorna erro 404 se o recurso não for encontrado
+            return response()->json([
+                'error' => true,
+                'message' => '{{ model }} not found',
+                'data' => []
+            ], Response::HTTP_NOT_FOUND);
+            
+        } catch (\Exception $e) {
+            // Captura exceções e retorna uma resposta de erro
+            return response()->json([
+                'error' => true,
+                'message' => 'An error occurred',
+                'data' => $e->getMessage()
+            ], Response::HTTP_BAD_REQUEST);
+        }
+
     }
 }

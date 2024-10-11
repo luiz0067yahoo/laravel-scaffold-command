@@ -4,7 +4,9 @@ namespace Scaffolding\Database;
 
 use Illuminate\Database\Migrations\MigrationCreator;
 use Illuminate\Filesystem\Filesystem;
-
+use Illuminate\Support\Str;
+//Str::plural(Str::snake($this->argument('entity')))
+//'create_'.$table.'_table'
 class ScaffoldMigrationCreator extends MigrationCreator
 {
     
@@ -35,6 +37,8 @@ class ScaffoldMigrationCreator extends MigrationCreator
      */
     public function createMigration($name, $path, $fields, $table = null, $create = false)
     {
+    
+        $file_name="create_". Str::plural(Str::snake($name)) ."_table";
         $this->ensureMigrationDoesntAlreadyExist($name, $path);
 
         // First we will get the stub file for the migration, which serves as a type
@@ -42,7 +46,7 @@ class ScaffoldMigrationCreator extends MigrationCreator
         // various place-holders, save the file, and run the post create event.
         $stub = $this->getStub($table, $create);
 
-        $path = $this->getPath($name, $path);
+        $path = $this->getPath($file_name, $path);
 
         $this->files->ensureDirectoryExists(dirname($path));
 
@@ -53,7 +57,7 @@ class ScaffoldMigrationCreator extends MigrationCreator
         // Next, we will fire any hooks that are supposed to fire after a migration is
         // created. Once that is done we'll be ready to return the full path to the
         // migration file so it can be used however it's needed by the developer.
-        $this->firePostCreateHooks($table);
+        $this->firePostCreateHooks($file_name,$path);
 
         return $path;
     }
